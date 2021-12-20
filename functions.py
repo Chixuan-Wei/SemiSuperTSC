@@ -14,18 +14,18 @@ def loadDataset(dataset_path, dataset_name):
     train = pd.read_csv(train_file, sep="\t", header=None)
     test = pd.read_csv(test_file, sep="\t", header=None)
 
-    data = pd.concat((train, test))  # 将训练集与测试集合并在一起
+    data = pd.concat((train, test))  
 
-    labels = data.values[:, 0]  # 获取所有实例的标签
-    num_classes = len(np.unique(labels))  # 类别的个数
+    labels = data.values[:, 0]  
+    num_classes = len(np.unique(labels))  
 
-    labels = (labels - labels.min()) / (labels.max() - labels.min()) * (num_classes - 1)  # 将类标签转换为0-num_classes
+    labels = (labels - labels.min()) / (labels.max() - labels.min()) * (num_classes - 1)  
     data[data.columns[0]] = labels
 
     return data
 
 
-# 划分数据集
+
 def stratifiedSampling(data, seed, normalization=False, device='cpu'):
     train, test = train_test_split(data, test_size=0.2, random_state=seed, shuffle=True, stratify=data.values[:, 0])
     train, validate = train_test_split(train, test_size=0.1, random_state=seed, shuffle=True,
