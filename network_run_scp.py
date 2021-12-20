@@ -1,5 +1,4 @@
 from functions import *
-# from semiSuperTSCV6 import net_info
 from weinet import *
 from torch.utils.data import DataLoader
 from sklearn.metrics import accuracy_score
@@ -9,12 +8,12 @@ import logging
 import random
 # os.system("nvidia-smi")
 # os.environ["CUDA_VISIBLE_DEVICES"] = '0'
-device = 'cuda' if torch.cuda.is_available() else 'cpu'  # 设置设备 优先在GPU上运行
+device = 'cuda' if torch.cuda.is_available() else 'cpu'  # set device
 USE_CUDA = torch.cuda.is_available()
 DEVICE = device
 device = DEVICE
 print("CUDA:", USE_CUDA, DEVICE, flush=True)
-dataset_path = os.path.join(os.getcwd(), 'UCRArchive_2018')  # 设置数据集路径
+dataset_path = os.path.join(os.getcwd(), 'UCRArchive_2018')  # set dataset path
 batch_code = "batch2"
 
 percentage_subsequence_length = 0.3  # size of subsequence or window
@@ -127,8 +126,8 @@ def run_network(dataset_name, net_info):
     #print(alexnet_mod)
 
     # loss function
-    criterion_classification = nn.CrossEntropyLoss()  # 分类的损失函数，交叉熵
-    criterion_forecasting = nn.MSELoss()  # 预测的损失函数，均方差
+    criterion_classification = nn.CrossEntropyLoss()  
+    criterion_forecasting = nn.MSELoss()  
 
     # create optimizer
     optimizer = torch.optim.AdamW(alexnet_mod.parameters(), lr=lr, weight_decay=wd)
@@ -154,16 +153,16 @@ def run_network(dataset_name, net_info):
                                                                   post_subsequences_coeffs_batch, net_info.alpha)
         train_acc = accuracy_score(
             np.argmax(alexnet_mod.forward_test(train_labeled_x.float()).cpu().detach().numpy(), axis=1),
-            train_labeled_y.long().cpu().numpy())  # 训练集上的准确率
+            train_labeled_y.long().cpu().numpy())  
         val_acc = accuracy_score(np.argmax(alexnet_mod.forward_test(validate_x.float()).cpu().detach().numpy(), axis=1),
-                                 validate_y.long().cpu().numpy())  # 验证集上的准确率
+                                 validate_y.long().cpu().numpy())
         time_epoch_end = time.time()
         epoch_time_cost = time_epoch_end - time_epoch_start
         print("one epoch time cost: {} s".format(epoch_time_cost))
 
         test_acc = accuracy_score(
             np.argmax(alexnet_mod.forward_test(test_x.float()).cpu().detach().numpy(), axis=1),
-            test_y.long().cpu().numpy())  # 测试集上的准确率
+            test_y.long().cpu().numpy())
 
         current_accuracy = val_acc
         model_name = dataset_name+"_a_"+str(network_args["alpha"]).replace(".","")+"_"+"{}".format(str(val_acc).replace(".","")+"_"+".pth")
@@ -173,9 +172,9 @@ def run_network(dataset_name, net_info):
             best_accuracy = current_accuracy
             torch.save(alexnet_mod.state_dict(), net_info.model_save_pos)
         print(
-            f'Epoch{t}   train_acc: {train_acc}, val_acc: {val_acc}, test_acc: {test_acc}, 分类损失: {loss_classification}, 预测损失: {loss_forecast}, time_cost{epoch_time_cost}')
+            f'Epoch{t}   train_acc: {train_acc}, val_acc: {val_acc}, test_acc: {test_acc}, classification_loss: {loss_classification}, prediction_loss: {loss_forecast}, time_cost{epoch_time_cost}')
         logger.info(
-            f'Epoch{t}   train_acc: {train_acc}, val_acc: {val_acc}, test_acc: {test_acc}, 分类损失: {loss_classification}, 预测损失: {loss_forecast}, time_cost{epoch_time_cost}')
+            f'Epoch{t}   train_acc: {train_acc}, val_acc: {val_acc}, test_acc: {test_acc}, classification_loss: {loss_classification}, prediction_loss: {loss_forecast}, time_cost{epoch_time_cost}')
         # ['epoch', 'train_acc', 'val_acc', 'test_acc', 'avg loss', 'classification_loss', 'forecast_loss']
 
         dataset_stat = dataset_stat.append(
@@ -183,8 +182,7 @@ def run_network(dataset_name, net_info):
              'classification_loss': loss_classification, 'forecast_loss': loss_forecast, 'time_cost':epoch_time_cost},
             ignore_index=True
         )
-        if best_accuracy == 1:
-            break
+
     logger.info(
         f'Best_accuracy:{best_accuracy}')
     dataset_stat = dataset_stat.append(
@@ -219,14 +217,6 @@ def one_run(horizon=network_args["horizon"], stride=network_args["stride"],
             print("{} has been processed".format(net_info.dataset_stat_pos))
             continue
 
-        ########## debug #####################
-        # data_set_accuracy = run_network(dataset, net_info)
-        # datasets_stat = datasets_stat.append({'Dataset': dataset, 'Accuracy': data_set_accuracy, 'horizon': net_info.horizon,
-        #                       'stride': net_info.stride, 'level': net_info.level, 'alpha': net_info.alpha},
-        #                      ignore_index=True
-        #                      )
-        # datasets_stat.to_csv(net_info.datasets_stat_pos)
-        ###################
         try:
             # train model
             time_netrun_start = time.time()
