@@ -4,7 +4,7 @@ import torch.nn as nn
 
 
 class MLPClassifier(nn.Module):
-    # 单隐层感知机
+
     hidden_layer_size = 256
 
     def __init__(self, output_size, input_size=4096):
@@ -48,40 +48,40 @@ class ALEXNetMOD(torch.nn.Module):
         self.fre_out_size = fre_out_size
 
         self.layer1 = torch.nn.Sequential(
-            nn.Conv1d(1, 96, kernel_size=7, padding=3),  #
+            nn.Conv1d(1, 96, kernel_size=7, padding=3), 
             nn.BatchNorm1d(96),
             nn.ReLU(),
-            nn.MaxPool1d(kernel_size=2, stride=2),  #
+            nn.MaxPool1d(kernel_size=2, stride=2),  
         )
 
         self.layer2 = torch.nn.Sequential(
-            nn.Conv1d(96, 256, kernel_size=5, padding=2),  #
+            nn.Conv1d(96, 256, kernel_size=5, padding=2),  
             nn.BatchNorm1d(256),
             nn.ReLU(),
             nn.MaxPool1d(kernel_size=2, stride=2)
         )
 
         self.layer3 = torch.nn.Sequential(
-            nn.Conv1d(256, 384, kernel_size=3, padding=1),  #
+            nn.Conv1d(256, 384, kernel_size=3, padding=1),  
             nn.BatchNorm1d(384),
             nn.ReLU(),
         )
 
         self.layer4 = torch.nn.Sequential(
-            nn.Conv1d(384, 384, kernel_size=3, padding=1),  # [batch, 384, 12, 12]
+            nn.Conv1d(384, 384, kernel_size=3, padding=1),  
             nn.BatchNorm1d(384),
             nn.ReLU(),
 
-            nn.Conv1d(384, 256, kernel_size=3, dilation=1, padding=1),  # [batch, 256, 12, 12]
+            nn.Conv1d(384, 256, kernel_size=3, dilation=1, padding=1),  
             nn.BatchNorm1d(256),
             nn.ReLU(),
-            nn.MaxPool1d(kernel_size=3, stride=1, padding=1),  # [batch, 256, 12, 12]
+            nn.MaxPool1d(kernel_size=3, stride=1, padding=1),  
 
-            nn.Conv1d(256, 4096, kernel_size=7, padding=3),  # 7 3
+            nn.Conv1d(256, 4096, kernel_size=7, padding=3),  
             nn.BatchNorm1d(4096),
             nn.ReLU(),
 
-            nn.Conv1d(4096, 4096, kernel_size=1, dilation=1),  # [batch, 4096, 12, 12]
+            nn.Conv1d(4096, 4096, kernel_size=1, dilation=1),  
             nn.BatchNorm1d(4096),
             nn.ReLU(),
 
@@ -90,8 +90,8 @@ class ALEXNetMOD(torch.nn.Module):
 
         self.flatten = torch.nn.Flatten()
         self.classification = MLPClassifier(input_size=4096, output_size=class_num)
-        self.prediction_time = PredictTime(input_size=4096, output_size=time_out_size)  #
-        self.prediction_fre = PredictTime(input_size=4096, output_size=fre_out_size)  #
+        self.prediction_time = PredictTime(input_size=4096, output_size=time_out_size)  
+        self.prediction_fre = PredictTime(input_size=4096, output_size=fre_out_size)  
 
     def forward(self, original_time_series, frequencies_of_subsequence, subsequence):
         c = self.layer1(original_time_series)
@@ -148,7 +148,7 @@ def optimize_network(model, optimizer, batch_original_time_series, batch_class_l
 
     loss_forecast = loss_forecasting_fre + loss_forecasting_time
     loss_mtl = alpha * loss_forecast + (1 - 2 * alpha) * loss_classification
-    optimizer.zero_grad()  # 优化器清零
-    loss_mtl.backward()  # 求梯度
-    optimizer.step()  # 更新模型参数
+    optimizer.zero_grad()  
+    loss_mtl.backward()  
+    optimizer.step()  
     return loss_classification.item(), loss_forecast.item()
