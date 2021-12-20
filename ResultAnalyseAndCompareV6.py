@@ -169,7 +169,3 @@ if __name__ == "__main__":
                  ]
 
     analyse_nets(nets_list)
-# separete_stat(pd.read_csv(csv_pos), net_save_dir,"wave-Alex-waveconcat-ne-AdamW-R2-_LABHOST")
-
-
-# analyse_csv("D:\\UCR项目\\result\wave-Alex-waveconcat-ne-AdamW-R2-_LABHOST\\t1__h_0.2_s_0.15_a_0.1_l_2\\ECG200_h_0.2_s_0.15_a_0.1_l_2.csv","ECG200_h_0.2_s_0.15_a_0.1_l_2.csv")
